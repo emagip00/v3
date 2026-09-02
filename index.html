@@ -140,7 +140,12 @@ async function sendCard(state){
   await writeBytes(p,true); armTimeout();
 }
 function armTimeout(){clearTimeout(stepTimer);
-  stepTimer=setTimeout(()=>{if(cardActive){log('⏱ 응답 없음(타임아웃). 세탁기 전원/상태 확인','l-err');endFlow();}},3000);}
+  stepTimer=setTimeout(()=>{if(cardActive){
+    log('⏱ 타임아웃. 마지막 상태 A('+cardState+'), CardCommand '+cardCommand,'l-err');
+    log('   버퍼에 걸린 조각('+rxBuf.length+'B): '+(rxBuf.length?hex(rxBuf):'(비어있음)'),'l-err');
+    if(rxBuf.length>=4) log('   기대 프레임길이='+(((rxBuf[2]&0x0F)<<8)|rxBuf[3])+'B','l-err');
+    endFlow();
+  }},5000);}
 function endFlow(){cardActive=false;flowQueue=[];lockCards(false);}
 
 // ===== RX 조각 재조립 =====
